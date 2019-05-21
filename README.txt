@@ -9,3 +9,9 @@ gcc jogo -o jogo.c main.c
 para executar o jogo em um terminal de linux execute o comando abaixo:
 
 ./jogo mapa.txt
+
+
+ESTADO ATUAL DO JOGO:
+
+	No momento o jogo ja abre o mapa no terminal e plota.
+	Tambem ja esta criado a struct personagem juntamente com a movimentacao do mesmo pelo mapa.
