@@ -1,49 +1,56 @@
-#include <memory.h>
-#include <stdio.h>
-#include <stdlib.h>
+char tipo_plantas[4] = {'A','B','C','D'};
+int cresc_plantas[4] = {5, 10, 15, 20};
+int satis_plantas[4] = {10, 20, 30, 50};
 
-//Struct da semente e alguns operadores
-
+//struct semente e operadores
 typedef struct semente{
 
   char tipo; //tipos da semente A, B, C, D.
-  int tempo_crescimento; //quão rápido ela vira uma planta;
-  int turno_plantada; // turno em que foi plantada
+  char estado; //[S]EMENTE, [P]LANTA, [F]RUTO
+  int tempo_crescimento; //quão rápido ela vira uma [F]ruta;
+  int turno_plantada; // turno em que foi plantada, quando platada vira estado [P]
+  int turno_colhida; // turno em que foi plantada, quando platada vira estado [P]
   int satisfacao; //quantos pontos de fome ela tira
-  char estado; //plantada ou comida
+  int tempo_morte; //plantada ou comida
   int posicao_inicial[2]; // posições onde ela foi iniciada
   int posicao_plantada[2]; //posições onde foi plantada
 
 }Semente;
 
 void cria_semente(Semente *s){
-
-  s->tipo = 'A'; //randomizar essa parte
-  s->tempo_crescimento = 100; //turnos para virar fruto
+  int aux;
+  aux = (rand()%3);
+  s->tipo = tipo_plantas[aux]; //randomizar essa parte
+  s->estado = 'S';
+  s->tempo_crescimento = cresc_plantas[aux]; //turnos para virar fruto
   s->turno_plantada = -1; //-1 não plantada
-  s->satisfacao = 10;
-  s->estado = 'Z'; //redundante? pq se há coord está plantada
+  s->turno_colhida = -1; //-1 não colhida
+  s->satisfacao = satis_plantas[aux];
+  s->tempo_morte = (cresc_plantas[aux]+10);
   s->posicao_inicial[0] = -1; //se -1, não foi colocada
   s->posicao_inicial[1] = -1; //se -1, não foi colocada
   s->posicao_plantada[0] = -1; //se -1, não foi plantada
   s->posicao_plantada[1] = -1; //se -1, não foi plantada
-
-  printf("\nSemente criada\n\n");
-
+  printf("\nSemente criada\n");
 }
 
-//Struct da mochila (PILHA) e alguns operadores
+//COME SEMENTE/FRUTA (VERIFICA SE NAO ESTA PODRE TEMPO_MORTE<TURNO COLHIDA - TURNO PLANTADA)
+//PLANTA SEMENTE
 
+//Struct da mochila (PILHA) e alguns operadores
 typedef struct mochila{
 
-  Semente semente[8];
+  Semente slot[8];
   int topo;
 
 }Mochila;
 
 void mochila_inicia(Mochila *m){
 
-  m->topo = -1; //mochila vazia
+  Semente S;
+  cria_semente(&S);
+  m->slot[0] = S;
+  m->topo = 0; //mochila vazia
 
 }
 
@@ -56,16 +63,53 @@ int mochila_status(Mochila *m){
 
 }
 
-int main(void) {
-  //inicia semente e mochila
-  Semente S1;
-  cria_semente(&S1);
-  Mochila M1;
-  mochila_inicia(&M1);
+void mochila_lista(Mochila *m){
+  if((m->topo)>=0){
+    int i;
+    printf("\nItens na mochila:\n\n");
+    for(i=0;i<=(m->topo);i++){
+      printf("\t -> Item slot [%i]: Semente %c \n\n", i, m->slot[i].tipo);
+    }
+  }
 
-  //funcs para verificar a mochila
-  mochila_status(&M1);
- 
-  printf("FIM\n");
-  return 0;
+  else{
+    printf("\nMochila vazia.\n\n");
+  }
+
 }
+
+//funções mochia/sementes
+
+void pega_semente(Semente *s, Mochila *m){
+  printf("\n\nPegando semente...\n");
+
+  if((m->topo)<7){
+    m->topo = ((m->topo)+1);
+    m->slot[m->topo] = *s;
+    printf("Semente %c apanhada...\n", m->slot[m->topo].tipo);
+  }
+
+  else{
+    printf("Erro ao pegar semente, mochila cheia.\n");
+  }
+}
+
+Semente * retira_semente(Mochila *m){
+  printf("\nRetirando semente...\n");
+
+  if((m->topo)>=0){
+    Semente *s_aux;
+    s_aux = malloc(sizeof(Semente));
+    s_aux  = &m->slot[m->topo];
+    m->topo = ((m->topo)-1);
+    
+    printf("Semente %c retirada...\n", s_aux->tipo);
+
+    return s_aux;
+  }
+
+  else{
+    printf("Erro ao retirar semente, mochila vazia.\n");
+    return NULL;
+  }
+} 
